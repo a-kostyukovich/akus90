@@ -13,7 +13,7 @@ class MyDaemon(Daemon):
                                         print(row[0] + ' ' + row[3] + ' ' + row[5])
  
 if __name__ == "__main__":
-        daemon = MyDaemon('/tmp/my-daemon.pid')
+        daemon = MyDaemon('/tmp/daemon-example.pid')
         if len(sys.argv) == 2:
                 if 'start' == sys.argv[1]:
                         daemon.start()

@@ -1,8 +1,6 @@
 import sys, os, time, atexit, signal
 
 class Daemon:
-
-
 	def __init__(self, pidfile): 
 		self.pidfile = pidfile
 	

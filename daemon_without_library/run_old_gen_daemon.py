@@ -1,13 +1,19 @@
-import sys, time
+import sys, time, csv, os
 from old_gen_class_daemon import Daemon
  
 class MyDaemon(Daemon):
         def run(self):
                 while True:
-                        time.sleep(1)
+                        time.sleep(60)
+                        with open('/proc/net/arp') as arp_table:
+    	                #'IP address', 'HW type', 'Flags', 'HW address', 'Mask', 'Device'
+                                spamreader = csv.reader(arp_table, skipinitialspace=True, delimiter=' ')
+                                for row in spamreader:
+                                    if row[5] == 'eth0':
+                                        print(row[0] + ' ' + row[3] + ' ' + row[5])
  
 if __name__ == "__main__":
-        daemon = MyDaemon('/tmp/daemon-example.pid')
+        daemon = MyDaemon('/tmp/my-daemon.pid')
         if len(sys.argv) == 2:
                 if 'start' == sys.argv[1]:
                         daemon.start()

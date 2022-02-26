@@ -1,17 +1,12 @@
-"""Generic linux daemon base class for python 3.x."""
-
-import sys, os, time, atexit, signal, csv
+import sys, os, time, atexit, signal
 
 class Daemon:
-	"""A generic daemon class.
 
-	Usage: subclass the daemon class and override the run() method."""
 
-	def __init__(self, pidfile): self.pidfile = pidfile
+	def __init__(self, pidfile): 
+		self.pidfile = pidfile
 	
 	def daemonize(self):
-		"""Deamonize class. UNIX double fork mechanism."""
-
 		try: 
 			pid = os.fork() 
 			if pid > 0:
@@ -36,18 +31,7 @@ class Daemon:
 		except OSError as err: 
 			sys.stderr.write('fork #2 failed: {0}\n'.format(err))
 			sys.exit(1) 
-	
-		# redirect standard file descriptors
-		sys.stdout.flush()
-		sys.stderr.flush()
-		si = open(os.devnull, 'r')
-		so = open(os.devnull, 'a+')
-		se = open(os.devnull, 'a+')
 
-		os.dup2(si.fileno(), sys.stdin.fileno())
-		os.dup2(so.fileno(), sys.stdout.fileno())
-		os.dup2(se.fileno(), sys.stderr.fileno())
-	
 		# write pidfile
 		atexit.register(self.delpid)
 
@@ -59,7 +43,6 @@ class Daemon:
 		os.remove(self.pidfile)
 
 	def start(self):
-		"""Start the daemon."""
 
 		# Check for a pidfile to see if the daemon already runs
 		try:
@@ -80,7 +63,6 @@ class Daemon:
 		self.run()
 
 	def stop(self):
-		"""Stop the daemon."""
 
 		# Get the pid from the pidfile
 		try:
@@ -93,9 +75,8 @@ class Daemon:
 			message = "pidfile {0} does not exist. " + \
 					"Daemon not running?\n"
 			sys.stderr.write(message.format(self.pidfile))
-			return # not an error in a restart
+			return
 
-		# Try killing the daemon process	
 		try:
 			while 1:
 				os.kill(pid, signal.SIGTERM)
@@ -110,17 +91,5 @@ class Daemon:
 				sys.exit(1)
 
 	def restart(self):
-		"""Restart the daemon."""
 		self.stop()
 		self.start()
-
-	def run(self):
-		while True:
-	        time.sleep(60)
-	        with open('/proc/net/arp') as arp_table:
-    	    #'IP address', 'HW type', 'Flags', 'HW address', 'Mask', 'Device'
-        	    spamreader = csv.reader(arp_table, skipinitialspace=True, delimiter=' ')
-            	for row in spamreader:
-                	if row[5] == 'eth0':
-                    	print(row[0] + ' ' + row[3] + ' ' + row[5])
-
